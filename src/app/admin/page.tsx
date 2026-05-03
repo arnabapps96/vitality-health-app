@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Users, Utensils, Activity, ArrowLeft, RefreshCw, ShieldCheck, Clock, Mail } from 'lucide-react';
+import { Users, Utensils, Activity, ArrowLeft, RefreshCw, ShieldCheck, Clock, Mail, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 const ADMIN_EMAIL = 'arnab.apps96@gmail.com';
@@ -16,6 +16,8 @@ export default function AdminDashboard() {
   });
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+const [feedbacks, setFeedbacks] = useState<any[]>([]);
+
 
   useEffect(() => {
     const checkAuth = () => {
@@ -31,30 +33,51 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchStats = async () => {
-    setLoading(true);
+  setLoading(true);
+  try {
+    const [users, meals, acts] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact' }),
+      supabase.from('meals').select('*', { count: 'exact' }),
+      supabase.from('activities').select('*', { count: 'exact' })
+    ]);
+
+    setStats({
+      totalUsers: users.count || 0,
+      totalMeals: meals.count || 0,
+      totalActivities: acts.count || 0
+    });
+
+    // Fetch most recent active users
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('last_login', { ascending: false })
+      .limit(10);
+    setRecentUsers(data || []);
+
+    // Fetch recent feedback submissions with error handling
+const { data: feedbackData, error: feedbackError } = await supabase
+  .from('feedback')
+  .select('*')
+  .order('created_at', { ascending: false })
+  .limit(20);
+if (feedbackError) {
+  console.error('Feedback fetch error:', feedbackError);
+  setFeedbacks([]);
+} else {
+  setFeedbacks(feedbackData || []);
+}
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const deleteFeedback = async (id: string) => {
     try {
-      const [users, meals, acts] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact' }),
-        supabase.from('meals').select('*', { count: 'exact' }),
-        supabase.from('activities').select('*', { count: 'exact' })
-      ]);
-
-      setStats({
-        totalUsers: users.count || 0,
-        totalMeals: meals.count || 0,
-        totalActivities: acts.count || 0
-      });
-
-      // Fetch most recent active users
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('last_login', { ascending: false })
-        .limit(10);
-      
-      setRecentUsers(data || []);
-    } finally {
-      setLoading(false);
+      await supabase.from('feedback').delete().eq('id', id);
+      setFeedbacks(prev => prev.filter(fb => fb.id !== id));
+    } catch (e) {
+      console.error('Delete feedback error:', e);
     }
   };
 
@@ -156,7 +179,34 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+          {/* Feedback Submissions */}
+<div className="glass-card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
+  <h3 style={{ marginBottom: '0.75rem', fontWeight: '600' }}>User Feedback</h3>
+  {feedbacks.length === 0 ? (
+    <p style={{ color: 'var(--text-muted)' }}>No feedback submitted yet.</p>
+  ) : (
+    <ul style={{ listStyle: 'none', padding: 0 }}>
+      {feedbacks.map((fb, i) => (
+        <li key={i} style={{ marginBottom: '0.75rem', borderBottom: '1px solid rgba(0,0,0,0.1)', paddingBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ fontWeight: '500' }}>{fb.comment || fb.comment_text || fb.comment}</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {fb.email} – {new Date(fb.created_at).toLocaleString()}
+            </p>
           </div>
+          <button 
+            onClick={() => deleteFeedback(fb.id)} 
+            style={{ border: 'none', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem' }}
+            title="Mark as actioned / remove"
+          >
+            <Trash2 size={18} />
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+</div>
         </div>
       </div>
     </div>

@@ -237,15 +237,15 @@ export default function Dashboard({ userEmail }: { userEmail: string }) {
           </div>
         </div>
         <div className="glass-card" style={{ textAlign: 'center', padding: '1rem' }}>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>In</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Calorie Intake (Kcal)</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: 'var(--primary)' }}>{consumed}</div>
         </div>
         <div className="glass-card" style={{ textAlign: 'center', padding: '1rem' }}>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Out</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Exercise (Kcal)</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#f59e0b' }}>{burned}</div>
         </div>
         <div className="glass-card" style={{ textAlign: 'center', padding: '1rem' }}>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Net</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>Net Deficit (Kcal)</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#3b82f6' }}>{net}</div>
         </div>
         <div className="glass-card" style={{ textAlign: 'center', padding: '1rem', border: balance < 0 ? '1px solid #ef4444' : 'none' }}>

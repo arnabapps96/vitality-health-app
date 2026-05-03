@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import MealTracker from '@/components/MealTracker';
+import MealTracker, { FeedbackForm } from '@/components/MealTracker';
 import ActivityTracker from '@/components/ActivityTracker';
 import Dashboard from '@/components/Dashboard';
 import UserProfile from '@/components/UserProfile';
@@ -269,6 +269,9 @@ export default function Home() {
           </div>
           <MealTracker userEmail={userEmail} />
           <ActivityTracker userEmail={userEmail} />
+          <div className="full-width">
+            <FeedbackForm userEmail={userEmail} />
+          </div>
         </div>
       )}
       

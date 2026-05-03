@@ -29,6 +29,7 @@ export default function ActivityTracker({ userEmail }: { userEmail: string }) {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [name, setName] = useState('');
   const [duration, setDuration] = useState('');
+  const [intensity, setIntensity] = useState<'light' | 'medium' | 'heavy' | 'athlete'>('medium');
   const [manualCalories, setManualCalories] = useState('');
   const storageKey = `health_activities_${userEmail}`;
   const [isSyncing, setIsSyncing] = useState(false);
@@ -85,7 +86,7 @@ export default function ActivityTracker({ userEmail }: { userEmail: string }) {
     return () => window.removeEventListener('health-save-trigger', handleSync);
   }, [activities, userEmail]);
 
-  const getActivityEstimate = (actName: string, mins: string) => {
+  const getActivityEstimate = (actName: string, mins: string, intLevel: string = intensity) => {
     const d = parseFloat(mins) || 0;
     const lower = actName.toLowerCase();
     let met = 4.0; // default moderate activity
@@ -96,13 +97,19 @@ export default function ActivityTracker({ userEmail }: { userEmail: string }) {
         break;
       }
     }
-    return Math.round((met * 3.5 * userWeight) / 200 * d);
+
+    let multiplier = 1.0;
+    if (intLevel === 'light') multiplier = 0.7;
+    if (intLevel === 'heavy') multiplier = 1.3;
+    if (intLevel === 'athlete') multiplier = 1.6;
+
+    return Math.round((met * multiplier * 3.5 * userWeight) / 200 * d);
   };
 
   const addActivity = () => {
     if (!name || !duration) return;
     
-    const caloriesBurned = manualCalories ? Number(manualCalories) : getActivityEstimate(name, duration);
+    const caloriesBurned = manualCalories ? Number(manualCalories) : getActivityEstimate(name, duration, intensity);
 
     const newActivity: ActivityLog = {
       id: Math.random().toString(36).substr(2, 9),
@@ -150,19 +157,33 @@ export default function ActivityTracker({ userEmail }: { userEmail: string }) {
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              setManualCalories(getActivityEstimate(e.target.value, duration).toString());
+              setManualCalories(getActivityEstimate(e.target.value, duration, intensity).toString());
             }}
             style={{ width: '100%', paddingLeft: '2.5rem' }}
           />
           <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
         </div>
+        <select
+          value={intensity}
+          onChange={(e) => {
+            const newInt = e.target.value as 'light' | 'medium' | 'heavy' | 'athlete';
+            setIntensity(newInt);
+            setManualCalories(getActivityEstimate(name, duration, newInt).toString());
+          }}
+          style={{ width: '100px' }}
+        >
+          <option value="light">Light</option>
+          <option value="medium">Medium</option>
+          <option value="heavy">Heavy</option>
+          <option value="athlete">Athlete</option>
+        </select>
         <input 
           type="number" 
           placeholder="Min" 
           value={duration}
           onChange={(e) => {
             setDuration(e.target.value);
-            setManualCalories(getActivityEstimate(name, e.target.value).toString());
+            setManualCalories(getActivityEstimate(name, e.target.value, intensity).toString());
           }}
           style={{ width: '70px' }}
         />

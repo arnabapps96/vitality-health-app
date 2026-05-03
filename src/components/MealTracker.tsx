@@ -1,17 +1,90 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Coffee, Utensils, Moon, Plus, Sun, Sunrise, Trash2, CloudSync, Search, Calculator } from 'lucide-react';
+import { Coffee, Utensils, Moon, Plus, Sun, Sunrise, Trash2, CloudSync, Search, Calculator, Send, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { 
-  getSmartEstimate, 
-  mealCalibrations, 
-  unitModifiers, 
-  MealUnit, 
-  MacroBase 
+import {
+  getSmartEstimate,
+  mealCalibrations,
+  unitModifiers,
+  MealUnit,
+  MacroBase
 } from '@/lib/nutritionEngine';
 
 type MealType = 'breakfast' | 'morning snack' | 'lunch' | 'evening snack' | 'dinner';
+
+// Feedback form for missing items
+export function FeedbackForm({ userEmail }: { userEmail: string }) {
+  const [feedback, setFeedback] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!feedback.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await supabase.from('feedback').insert({
+        email: userEmail,
+        comment: feedback,
+        created_at: new Date().toISOString(),
+      });
+      setSubmitted(true);
+      setFeedback('');
+    } catch (e) {
+      console.error('Feedback submit error', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="glass-card" style={{ marginTop: '0', padding: '1.5rem' }}>
+      <h3 style={{ marginBottom: '0.5rem', fontWeight: '600' }}>Didn't find something? Let us know here</h3>
+      <textarea
+        value={feedback}
+        onChange={e => setFeedback(e.target.value)}
+        rows={3}
+        placeholder="e.g., missing food or activity type"
+        style={{ width: '100%', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid rgba(0,0,0,0.1)' }}
+      />
+      <button
+        onClick={handleSubmit}
+        className="primary"
+        style={{
+          marginTop: '1rem',
+          padding: '0.75rem 2rem',
+          borderRadius: '1.25rem',
+          fontSize: '1rem',
+          opacity: (submitted || isSubmitting) ? 0.7 : 1,
+          cursor: (submitted || isSubmitting) ? 'not-allowed' : 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          fontWeight: '700'
+        }}
+        disabled={submitted || isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <CloudSync size={18} className="animate-spin" />
+            Processing...
+          </>
+        ) : submitted ? (
+          <>
+            <CheckCircle size={18} />
+            Thank you!
+          </>
+        ) : (
+          <>
+            <Send size={18} />
+            Submit Feedback
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
+
 
 interface Meal {
   id: string;
@@ -39,11 +112,11 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
   const [meals, setMeals] = useState<Meal[]>([]);
   const storageKey = `health_meals_${userEmail}`;
   const [isSyncing, setIsSyncing] = useState(false);
-  
+
   const [savedMealTotals, setSavedMealTotals] = useState<Record<MealType, number>>({
     breakfast: 0, 'morning snack': 0, lunch: 0, 'evening snack': 0, dinner: 0
   });
-  
+
   const [inputs, setInputs] = useState<Record<MealType, { name: string, quantity: string, unit: MealUnit, calories: string }>>({
     breakfast: { name: '', quantity: '1', unit: 'item', calories: '0' },
     'morning snack': { name: '', quantity: '1', unit: 'item', calories: '0' },
@@ -164,9 +237,9 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
           <Utensils size={24} /> Meal Tracker
         </h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <input 
-            type="date" 
-            value={selectedDate} 
+          <input
+            type="date"
+            value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             style={{ padding: '0.4rem', fontSize: '0.8rem', borderRadius: '0.5rem', border: '1px solid rgba(0,0,0,0.1)' }}
           />
@@ -191,7 +264,7 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
               {savedMealTotals[type]} kcal
             </span>
           </div>
-          
+
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
             <div style={{ position: 'relative', flex: '2 1 200px' }}>
               <input
@@ -201,12 +274,21 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
                   const name = e.target.value;
                   const est = getSmartEstimate(name, inputs[type].quantity, inputs[type].unit);
                   setInputs({ ...inputs, [type]: { ...inputs[type], name, calories: est.calories.toString() } });
-                  
+
                   if (name.length > 1) {
-                    const filtered = Object.keys(mealCalibrations).filter(item => 
-                      item.toLowerCase().includes(name.toLowerCase())
-                    );
-                    setSuggestions(filtered.slice(0, 5));
+                    const searchLower = name.toLowerCase();
+                    const filtered = Object.keys(mealCalibrations)
+                      .filter(item => item.toLowerCase().includes(searchLower))
+                      .sort((a, b) => {
+                        const aLower = a.toLowerCase();
+                        const bLower = b.toLowerCase();
+                        const aStarts = aLower.startsWith(searchLower) ? 1 : 0;
+                        const bStarts = bLower.startsWith(searchLower) ? 1 : 0;
+                        // Prioritize startsWith, then by length
+                        if (aStarts !== bStarts) return bStarts - aStarts;
+                        return aLower.length - bLower.length;
+                      });
+                    setSuggestions(filtered.slice(0, 6));
                     setActiveDropdown(type);
                   } else {
                     setActiveDropdown(null);
@@ -219,15 +301,15 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
                 style={{ width: '100%', paddingLeft: '2.5rem' }}
               />
               <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translate(-50%, -50%)', opacity: 0.4 }} />
-              
+
               {activeDropdown === type && suggestions.length > 0 && (
-                <div style={{ 
-                  position: 'absolute', 
-                  top: '100%', 
-                  left: 0, 
-                  right: 0, 
-                  backgroundColor: 'white', 
-                  borderRadius: '0.75rem', 
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'white',
+                  borderRadius: '0.75rem',
                   boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                   zIndex: 50,
                   marginTop: '0.5rem',
@@ -235,11 +317,11 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
                   border: '1px solid rgba(0,0,0,0.05)'
                 }}>
                   {suggestions.map((suggestion) => (
-                    <div 
+                    <div
                       key={suggestion}
                       onClick={() => handleSelectSuggestion(type, suggestion)}
-                      style={{ 
-                        padding: '0.75rem 1rem', 
+                      style={{
+                        padding: '0.75rem 1rem',
                         cursor: 'pointer',
                         fontSize: '0.9rem',
                         transition: 'background-color 0.2s',
@@ -254,7 +336,7 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
                 </div>
               )}
             </div>
-            
+
             <div style={{ display: 'flex', gap: '0.5rem', flex: '1 1 150px' }}>
               <input
                 type="number"
@@ -279,17 +361,17 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
                 {Object.keys(unitModifiers).map(u => {
                   const isDrinkUnit = ['pint', 'can', 'bottle'].includes(u);
                   const alcoholKeywords = [
-                    'beer', 'wine', 'vodka', 'whiskey', 'rum', 'gin', 'margarita', 'mojito', 'martini', 
+                    'beer', 'wine', 'vodka', 'whiskey', 'rum', 'gin', 'margarita', 'mojito', 'martini',
                     'liit', 'cocktail', 'mocktail', 'sangria', 'cosmopolitan', 'pina colada'
                   ];
                   const isAlcoholOrMocktail = alcoholKeywords.some(kw => inputs[type].name.toLowerCase().includes(kw));
-                  
+
                   if (isDrinkUnit && !isAlcoholOrMocktail) return null;
                   return <option key={u} value={u}>{u}</option>;
                 })}
               </select>
             </div>
-            
+
             <div style={{ display: 'flex', gap: '0.5rem', flex: '1 1 160px' }}>
               <div style={{ position: 'relative', flex: 1 }}>
                 <input
