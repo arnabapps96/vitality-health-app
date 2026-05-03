@@ -12,6 +12,7 @@ import { LayoutDashboard, TrendingUp, Calendar, Zap, PieChart as PieIcon, CloudS
 interface Meal {
   calories: number;
   date: string;
+  name: string;
   protein: number;
   carbs: number;
   fat: number;
