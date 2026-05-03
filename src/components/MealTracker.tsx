@@ -265,10 +265,11 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
     // AI Base defaults (balanced mix)
     let base: MacroBase = { cals: 150, p: 5, c: 20, f: 5 };
     
-    // Sophisticated matching
-    for (const [item, data] of Object.entries(mealCalibrations)) {
+    // Sophisticated matching (sort by length descending to match 'green tea' before 'tea')
+    const sortedKeys = Object.keys(mealCalibrations).sort((a, b) => b.length - a.length);
+    for (const item of sortedKeys) {
       if (lowerName.includes(item)) {
-        base = data;
+        base = mealCalibrations[item];
         break;
       }
     }
