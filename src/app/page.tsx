@@ -28,6 +28,11 @@ export default function Home() {
     if (savedEmail) {
       setUserEmail(savedEmail);
       setUserName(savedName || 'User');
+      
+      // Update last login on refresh
+      supabase.from('profiles').update({
+        last_login: new Date().toISOString()
+      }).eq('email', savedEmail).then(() => {});
     }
   }, []);
 
@@ -38,10 +43,13 @@ export default function Home() {
 
     try {
       const email = tempEmail.toLowerCase().trim();
+      const now = new Date().toISOString();
+      
       if (isSignUp) {
         await supabase.from('profiles').upsert({
           email: email,
-          name: tempName || 'User'
+          name: tempName || 'User',
+          last_login: now
         });
         setUserName(tempName || 'User');
         localStorage.setItem('health_user_name', tempName || 'User');
@@ -52,6 +60,11 @@ export default function Home() {
           .eq('email', email)
           .single();
         
+        // Update last login timestamp even for existing users
+        await supabase.from('profiles').update({
+          last_login: now
+        }).eq('email', email);
+
         const finalName = data?.name || 'User';
         setUserName(finalName);
         localStorage.setItem('health_user_name', finalName);
@@ -79,69 +92,117 @@ export default function Home() {
       <div style={{ 
         minHeight: '100vh', 
         display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        background: 'var(--bg-gradient)',
-        padding: '1.5rem'
+        background: '#fff',
+        overflow: 'hidden'
       }}>
-        <div className="glass-card" style={{ maxWidth: '450px', width: '100%', textAlign: 'center' }}>
-          <div style={{ background: 'var(--primary)', color: 'white', width: '64px', height: '64px', borderRadius: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-            <Heart size={32} fill="currentColor" />
+        {/* Left Side: Photo Hero (Desktop Only) */}
+        <div style={{ 
+          flex: '1.2', 
+          position: 'relative'
+        }} className="login-hero">
+          <img 
+            src="/login-bg.png" 
+            alt="Vitality Health" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{ 
+            position: 'absolute', 
+            inset: 0, 
+            background: 'linear-gradient(to bottom, rgba(4, 47, 46, 0.4), rgba(4, 47, 46, 0.8))',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '4rem',
+            color: 'white'
+          }}>
+            <h2 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '1.5rem', lineHeight: '1.1' }}>
+              Your health is your<br/>greatest wealth.
+            </h2>
+            <p style={{ fontSize: '1.2rem', opacity: 0.9, maxWidth: '500px', lineHeight: '1.6', fontWeight: '500' }}>
+              Join thousands of high-performers who use Vitality to track their data with precision and intent.
+            </p>
+            <div style={{ marginTop: '3rem', display: 'flex', gap: '2rem' }}>
+              <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '800' }}>100%</div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Data Privacy</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '800' }}>AI</div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Powered Tracking</div>
+              </div>
+            </div>
           </div>
-          <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem', color: '#042f2e' }}>
-            {isSignUp ? 'Join Vitality' : 'Welcome Back'}
-          </h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.95rem' }}>
-            {isSignUp ? 'Create your personal health dashboard' : 'Your health data is waiting for you'}
-          </p>
+        </div>
 
-          <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {isSignUp && (
+        {/* Right Side: Form (Light on Desktop, Stealth on Mobile) */}
+        <div style={{ 
+          flex: '1', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '1.5rem',
+          position: 'relative'
+        }} className="login-container-mobile">
+          <div className="glass-card login-card-mobile" style={{ maxWidth: '420px', width: '100%', textAlign: 'center', padding: '3.5rem 2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative', zIndex: 1 }}>
+            <div style={{ background: 'var(--primary)', color: 'white', width: '64px', height: '64px', borderRadius: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
+              <Heart size={32} fill="currentColor" />
+            </div>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', marginBottom: '0.75rem', color: '#042f2e', letterSpacing: '-0.025em' }} className="mobile-login-title">
+              {isSignUp ? 'Get Started' : 'Welcome Back'}
+            </h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem', fontSize: '1rem', fontWeight: '500' }} className="mobile-login-p">
+              {isSignUp ? 'Precision health starts today.' : 'Track your progress with intent.'}
+            </p>
+
+            <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {isSignUp && (
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Full Name" 
+                    value={tempName}
+                    onChange={(e) => setTempName(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '1.1rem 1rem 1.1rem 3.5rem', borderRadius: '1.25rem' }}
+                  />
+                  <User size={20} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
+                </div>
+              )}
               <div style={{ position: 'relative' }}>
                 <input 
-                  type="text" 
-                  placeholder="Your Name" 
-                  value={tempName}
-                  onChange={(e) => setTempName(e.target.value)}
+                  type="email" 
+                  placeholder="Email Address" 
+                  value={tempEmail}
+                  onChange={(e) => setTempEmail(e.target.value)}
                   required
-                  style={{ width: '100%', paddingLeft: '3rem' }}
+                  style={{ width: '100%', padding: '1.1rem 1rem 1.1rem 3.5rem', borderRadius: '1.25rem' }}
                 />
-                <User size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
+                <Mail size={20} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
               </div>
-            )}
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="email" 
-                placeholder="Email Address" 
-                value={tempEmail}
-                onChange={(e) => setTempEmail(e.target.value)}
-                required
-                style={{ width: '100%', paddingLeft: '3rem' }}
-              />
-              <Mail size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-            </div>
-            <button 
-              className="primary" 
-              disabled={loading}
-              style={{ width: '100%', padding: '1rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
-            >
-              {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
-              {!loading && <ArrowRight size={20} />}
-            </button>
-          </form>
+              <button 
+                className="primary" 
+                disabled={loading}
+                style={{ width: '100%', padding: '1.2rem', borderRadius: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '1rem', fontSize: '1.1rem', fontWeight: '800' }}
+              >
+                {loading ? 'Authenticating...' : (isSignUp ? 'Launch Journey' : 'Enter Dashboard')}
+                {!loading && <ArrowRight size={22} />}
+              </button>
+            </form>
 
-          <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-            <button 
-              onClick={() => setIsSignUp(!isSignUp)}
-              style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '600', cursor: 'pointer', fontSize: '0.9rem' }}
-            >
-              {isSignUp ? 'Already have an account? Sign In' : 'New here? Create an Account'}
-            </button>
+            <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+              <button 
+                onClick={() => setIsSignUp(!isSignUp)}
+                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '700', cursor: 'pointer', fontSize: '1rem' }}
+              >
+                {isSignUp ? 'Already a member? Sign In' : 'New to Vitality? Join Now'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     );
   }
+
 
   return (
     <main style={{ padding: '1rem', width: '100%', maxWidth: '1200px', margin: '0 auto', overflowX: 'hidden' }}>

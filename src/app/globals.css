@@ -122,3 +122,60 @@ input:focus {
     width: 100%;
   }
 }
+
+/* Login Layout */
+@media (min-width: 1024px) {
+  .login-hero {
+    display: block !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .login-hero {
+    display: none !important;
+  }
+} 
+
+/* Mobile Layout Helpers */
+@media (max-width: 1023px) {
+  .show-on-mobile {
+    display: block !important;
+  }
+} 
+
+/* Hybrid Login Styles */
+@media (max-width: 1023px) {
+  .login-container-mobile {
+    background: #042f2e !important;
+  }
+  .mobile-login-title {
+    color: white !important;
+  }
+  .mobile-login-p {
+    color: rgba(255,255,255,0.7) !important;
+  }
+} 
+
+/* Final Mobile Contrast Fix */
+@media (max-width: 1023px) {
+  .login-container-mobile {
+    background: #042f2e !important;
+    background-image: none !important;
+  }
+  .login-card-mobile {
+    background: white !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+  }
+} 
+
+/* Mobile Text Contrast Fix */
+@media (max-width: 1023px) {
+  .mobile-login-title {
+    color: #042f2e !important;
+  }
+  .mobile-login-p {
+    color: #4b5563 !important;
+  }
+} 

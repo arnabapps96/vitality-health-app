@@ -65,6 +65,21 @@ export default function HowTo() {
         ))}
       </div>
 
+      <div style={{ marginTop: '3rem', background: 'rgba(59, 130, 246, 0.05)', padding: '2rem', borderRadius: '2rem', border: '1px solid rgba(59, 130, 246, 0.1)' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1rem', color: '#1e3a8a' }}>📊 Understanding Your Dashboard</h3>
+        <div style={{ display: 'grid', gap: '1rem', fontSize: '0.9rem', color: '#334155', lineHeight: '1.6' }}>
+          <p>
+            <strong>• Balance:</strong> Think of this as your <b>Calorie Budget</b>. If it's a positive number, you're "under budget" (good for weight loss). If it's negative, you've eaten more than your body burned.
+          </p>
+          <p>
+            <strong>• Est. Loss:</strong> This converts your calorie balance into actual <b>Kilograms</b>. We use the scientific 7,700 kcal = 1kg conversion. 
+          </p>
+          <p>
+            <strong>• Weekly vs Daily:</strong> Switch to 'Weekly' to see your <b>total progress</b> for the last 7 days. Your 'Balance' will look much larger because it's showing your budget for the whole week!
+          </p>
+        </div>
+      </div>
+
       <div style={{ marginTop: '3rem', background: 'rgba(255,255,255,0.4)', padding: '2rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.6)' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Zap size={20} color="#f59e0b" fill="#f59e0b" /> Pro Tips

@@ -49,7 +49,7 @@ export default function AdminDashboard() {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .order('updated_at', { ascending: false })
+        .order('last_login', { ascending: false })
         .limit(10);
       
       setRecentUsers(data || []);
@@ -84,20 +84,20 @@ export default function AdminDashboard() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-gradient)', padding: '2rem' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-          <div>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ flex: '1', minWidth: '250px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', marginBottom: '0.5rem' }}>
               <ShieldCheck size={20} />
               <span style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Admin Console</span>
             </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#042f2e' }}>Engagement Hub</h1>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#042f2e', lineHeight: '1.2' }}>Engagement Hub</h1>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button onClick={fetchStats} className="glass-card" style={{ padding: '0.75rem', borderRadius: '1rem', border: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <button onClick={fetchStats} className="glass-card" style={{ padding: '0.75rem', borderRadius: '1rem', border: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer', background: 'white' }}>
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
             </button>
-            <Link href="/" style={{ padding: '0.75rem 1.5rem', background: 'white', color: 'var(--text-main)', borderRadius: '1rem', textDecoration: 'none', fontWeight: '700', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ArrowLeft size={18} /> Back to App
+            <Link href="/" style={{ padding: '0.75rem 1.5rem', background: 'var(--primary)', color: 'white', borderRadius: '1rem', textDecoration: 'none', fontWeight: '700', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+              <ArrowLeft size={18} /> Exit
             </Link>
           </div>
         </header>
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
                     Last Active
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {user.updated_at ? new Date(user.updated_at).toLocaleString() : 'N/A'}
+                    {user.last_login ? new Date(user.last_login).toLocaleString() : 'N/A'}
                   </div>
                 </div>
               </div>
