@@ -25,34 +25,35 @@ interface MacroBase {
   p: number;
   c: number;
   f: number;
+  isPiece?: boolean;
 }
 
 const mealCalibrations: Record<string, MacroBase> = {
   // Breads (AI Optimized)
-  'roti': { cals: 85, p: 3, c: 18, f: 0.5 },
-  'plain roti': { cals: 80, p: 2.5, c: 16, f: 0.2 },
-  'butter roti': { cals: 110, p: 3, c: 18, f: 3.5 },
-  'tandoori roti': { cals: 120, p: 4, c: 22, f: 1 },
-  'rumali roti': { cals: 140, p: 3, c: 28, f: 1.5 },
-  'phulka': { cals: 75, p: 2.5, c: 15, f: 0.2 },
-  'chapati': { cals: 90, p: 3, c: 18, f: 1 },
-  'butter chapati': { cals: 120, p: 3, c: 18, f: 4.5 },
-  'paratha': { cals: 220, p: 5, c: 28, f: 12 },
-  'aloo paratha': { cals: 310, p: 7, c: 42, f: 14 },
-  'paneer paratha': { cals: 340, p: 12, c: 38, f: 16 },
-  'gobi paratha': { cals: 260, p: 6, c: 35, f: 11 },
-  'puri': { cals: 120, p: 2, c: 14, f: 8 },
-  'naan': { cals: 280, p: 9, c: 48, f: 6 },
-  'butter naan': { cals: 330, p: 9, c: 48, f: 12 },
-  'garlic naan': { cals: 310, p: 10, c: 50, f: 8 },
-  'luchi': { cals: 140, p: 2, c: 16, f: 9 },
+  'roti': { cals: 85, p: 3, c: 18, f: 0.5, isPiece: true },
+  'plain roti': { cals: 80, p: 2.5, c: 16, f: 0.2, isPiece: true },
+  'butter roti': { cals: 110, p: 3, c: 18, f: 3.5, isPiece: true },
+  'tandoori roti': { cals: 120, p: 4, c: 22, f: 1, isPiece: true },
+  'rumali roti': { cals: 140, p: 3, c: 28, f: 1.5, isPiece: true },
+  'phulka': { cals: 75, p: 2.5, c: 15, f: 0.2, isPiece: true },
+  'chapati': { cals: 90, p: 3, c: 18, f: 1, isPiece: true },
+  'butter chapati': { cals: 120, p: 3, c: 18, f: 4.5, isPiece: true },
+  'paratha': { cals: 220, p: 5, c: 28, f: 12, isPiece: true },
+  'aloo paratha': { cals: 310, p: 7, c: 42, f: 14, isPiece: true },
+  'paneer paratha': { cals: 340, p: 12, c: 38, f: 16, isPiece: true },
+  'gobi paratha': { cals: 260, p: 6, c: 35, f: 11, isPiece: true },
+  'puri': { cals: 120, p: 2, c: 14, f: 8, isPiece: true },
+  'naan': { cals: 280, p: 9, c: 48, f: 6, isPiece: true },
+  'butter naan': { cals: 330, p: 9, c: 48, f: 12, isPiece: true },
+  'garlic naan': { cals: 310, p: 10, c: 50, f: 8, isPiece: true },
+  'luchi': { cals: 140, p: 2, c: 16, f: 9, isPiece: true },
   'chole bhature': { cals: 600, p: 18, c: 70, f: 30 },
   'puri sabzi': { cals: 450, p: 10, c: 50, f: 25 },
-  'bedmi puri': { cals: 220, p: 6, c: 28, f: 12 },
-  'bread pakora': { cals: 300, p: 7, c: 25, f: 20 },
+  'bedmi puri': { cals: 220, p: 6, c: 28, f: 12, isPiece: true },
+  'bread pakora': { cals: 300, p: 7, c: 25, f: 20, isPiece: true },
   'namkeen seviyan': { cals: 300, p: 6, c: 45, f: 12 },
-  'moong dal cheela': { cals: 180, p: 9, c: 22, f: 7 },
-  'stuffed kulcha': { cals: 250, p: 8, c: 40, f: 8 },
+  'moong dal cheela': { cals: 180, p: 9, c: 22, f: 7, isPiece: true },
+  'stuffed kulcha': { cals: 250, p: 8, c: 40, f: 8, isPiece: true },
   // Rice & Biryani (AI Optimized for 1 Plate/Cup)
   'rice': { cals: 130, p: 2.5, c: 28, f: 0.3 },
   'brown rice': { cals: 110, p: 3, c: 23, f: 1 },
@@ -95,39 +96,39 @@ const mealCalibrations: Record<string, MacroBase> = {
   'fish curry': { cals: 220, p: 22, c: 6, f: 12 },
   'egg curry': { cals: 250, p: 14, c: 8, f: 18 },
   // Breakfast & Snacks (AI Optimized)
-  'idli': { cals: 60, p: 2, c: 12, f: 0.2 },
+  'idli': { cals: 60, p: 2, c: 12, f: 0.2, isPiece: true },
   'dosa': { cals: 120, p: 4, c: 22, f: 3 },
   'plain dosa': { cals: 120, p: 4, c: 22, f: 3 },
   'masala dosa': { cals: 350, p: 8, c: 48, f: 14 },
-  'medhu vada': { cals: 180, p: 5, c: 18, f: 10 },
+  'medhu vada': { cals: 180, p: 5, c: 18, f: 10, isPiece: true },
   'ven pongal': { cals: 350, p: 9, c: 45, f: 15 },
   'uttapam': { cals: 250, p: 7, c: 40, f: 8 },
-  'appam': { cals: 120, p: 3, c: 22, f: 4 },
+  'appam': { cals: 120, p: 3, c: 22, f: 4, isPiece: true },
   'puttu': { cals: 300, p: 5, c: 55, f: 5 },
-  'idiyappam': { cals: 100, p: 2, c: 22, f: 2 },
+  'idiyappam': { cals: 100, p: 2, c: 22, f: 2, isPiece: true },
   'pesarattu': { cals: 180, p: 8, c: 22, f: 8 },
-  'neer dosa': { cals: 100, p: 2, c: 18, f: 3 },
+  'neer dosa': { cals: 100, p: 2, c: 18, f: 3, isPiece: true },
   'poha': { cals: 210, p: 4, c: 35, f: 8 },
   'kanda poha': { cals: 300, p: 6, c: 45, f: 12 },
   'upma': { cals: 190, p: 5, c: 32, f: 6 },
   'rava upma': { cals: 300, p: 6, c: 45, f: 12 },
   'bread upma': { cals: 280, p: 6, c: 40, f: 12 },
-  'vada': { cals: 110, p: 3, c: 10, f: 8 },
-  'samosa': { cals: 240, p: 4, c: 28, f: 14 },
+  'vada': { cals: 110, p: 3, c: 10, f: 8, isPiece: true },
+  'samosa': { cals: 240, p: 4, c: 28, f: 14, isPiece: true },
   'pav bhaji': { cals: 480, p: 12, c: 65, f: 22 },
   'bun maska': { cals: 240, p: 4, c: 35, f: 10 },
-  'aloo tikki burger': { cals: 380, p: 9, c: 55, f: 14 },
+  'aloo tikki burger': { cals: 380, p: 9, c: 55, f: 14, isPiece: true },
   'sprouts salad': { cals: 120, p: 9, c: 15, f: 3 },
   'misal pav': { cals: 500, p: 15, c: 60, f: 25 },
   'sabudana khichdi': { cals: 380, p: 4, c: 58, f: 15 },
-  'thalipeeth': { cals: 180, p: 5, c: 22, f: 8 },
-  'dhokla': { cals: 180, p: 5, c: 28, f: 6 },
-  'thepla': { cals: 140, p: 4, c: 18, f: 6 },
-  'khandvi': { cals: 60, p: 3, c: 6, f: 3 },
+  'thalipeeth': { cals: 180, p: 5, c: 22, f: 8, isPiece: true },
+  'dhokla': { cals: 180, p: 5, c: 28, f: 6, isPiece: true },
+  'thepla': { cals: 140, p: 4, c: 18, f: 6, isPiece: true },
+  'khandvi': { cals: 60, p: 3, c: 6, f: 3, isPiece: true },
   'fafda jalebi': { cals: 700, p: 12, c: 90, f: 38 },
   'dal pakwan': { cals: 480, p: 12, c: 58, f: 25 },
   'luchi alur dom': { cals: 480, p: 10, c: 58, f: 25 },
-  'radhaballavi': { cals: 300, p: 8, c: 35, f: 18 },
+  'radhaballavi': { cals: 300, p: 8, c: 35, f: 18, isPiece: true },
   'chira polao': { cals: 300, p: 5, c: 50, f: 12 },
   'mughlai paratha': { cals: 500, p: 20, c: 48, f: 32 },
   'jhal muri': { cals: 250, p: 5, c: 35, f: 12 },
@@ -140,21 +141,21 @@ const mealCalibrations: Record<string, MacroBase> = {
   'veg fried rice': { cals: 320, p: 7, c: 50, f: 10 },
   'chilli chicken': { cals: 420, p: 35, c: 15, f: 25 },
   'chilli paneer': { cals: 380, p: 15, c: 20, f: 28 },
-  'momos': { cals: 200, p: 8, c: 35, f: 4 },
-  'dim sum': { cals: 200, p: 8, c: 35, f: 4 },
-  'spring roll': { cals: 150, p: 3, c: 15, f: 9 },
+  'momos': { cals: 200, p: 8, c: 35, f: 4, isPiece: true },
+  'dim sum': { cals: 200, p: 8, c: 35, f: 4, isPiece: true },
+  'spring roll': { cals: 150, p: 3, c: 15, f: 9, isPiece: true },
   'manchow soup': { cals: 150, p: 4, c: 18, f: 7 },
   // Italian
-  'margherita pizza': { cals: 250, p: 12, c: 30, f: 10 },
-  'pepperoni pizza': { cals: 320, p: 15, c: 30, f: 18 },
+  'margherita pizza': { cals: 250, p: 12, c: 30, f: 10, isPiece: true },
+  'pepperoni pizza': { cals: 320, p: 15, c: 30, f: 18, isPiece: true },
   'pasta arrabbiata': { cals: 400, p: 12, c: 65, f: 8 },
   'pasta alfredo': { cals: 750, p: 20, c: 50, f: 45 },
   'pasta pesto': { cals: 550, p: 15, c: 50, f: 32 },
   'lasagna': { cals: 600, p: 35, c: 45, f: 30 },
   'risotto': { cals: 450, p: 12, c: 60, f: 18 },
-  'garlic bread': { cals: 150, p: 4, c: 18, f: 7 },
-  'bruschetta': { cals: 120, p: 3, c: 15, f: 6 },
-  'boiled egg': { cals: 75, p: 6, c: 1, f: 5 },
+  'garlic bread': { cals: 150, p: 4, c: 18, f: 7, isPiece: true },
+  'bruschetta': { cals: 120, p: 3, c: 15, f: 6, isPiece: true },
+  'boiled egg': { cals: 75, p: 6, c: 1, f: 5, isPiece: true },
   'omelette': { cals: 180, p: 13, c: 2, f: 14 },
   'masala omelette': { cals: 220, p: 13, c: 4, f: 18 },
   'egg bhurji': { cals: 280, p: 16, c: 6, f: 22 },
@@ -218,8 +219,8 @@ const mealCalibrations: Record<string, MacroBase> = {
 };
 
 const unitModifiers: Record<MealUnit, number> = {
-  'item': 1, 'gram': 0.01, 'cup': 1.8, 'bowl': 2.2, 'katori': 1.5, 'small bowl': 1.2,
-  'slice': 0.8, 'plate': 3.5, 'glass': 2, 'spoon': 0.2, 'piece': 1, 'packet': 4,
+  'item': 1, 'gram': 0.01, 'cup': 1.2, 'bowl': 1.5, 'katori': 1, 'small bowl': 0.8,
+  'slice': 0.8, 'plate': 1.8, 'glass': 2, 'spoon': 0.2, 'piece': 1, 'packet': 4,
   'pint': 0.93, 'can': 1.4, 'bottle': 1.83
 };
 
@@ -277,6 +278,20 @@ export default function MealTracker({ userEmail }: { userEmail: string }) {
     let totalP = base.p * mult;
     let totalC = base.c * mult;
     let totalF = base.f * mult;
+
+    // Smart Portion Calibration for Piece-based items
+    if (base.isPiece) {
+      let pieceMult = q;
+      if (unit === 'plate') pieceMult = q * 3; // Standard Indian plate = 3 pieces
+      if (unit === 'bowl') pieceMult = q * 2;  // Standard bowl = 2 pieces
+      
+      if (unit === 'plate' || unit === 'bowl') {
+        totalCals = base.cals * pieceMult;
+        totalP = base.p * pieceMult;
+        totalC = base.c * pieceMult;
+        totalF = base.f * pieceMult;
+      }
+    }
 
     // AI Dynamic Context Adjustments
     if (lowerName.includes('sugar-free') || lowerName.includes('without sugar')) { totalCals *= 0.7; totalC *= 0.5; }
