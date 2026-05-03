@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Scale, Ruler, Calendar as AgeIcon, Zap, Save, CheckCircle } from 'lucide-react';
+import { User, Scale, Ruler, Calendar as AgeIcon, Zap, Save, CheckCircle, Flame } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface Profile {
@@ -24,6 +24,46 @@ export default function UserProfile({ userEmail, onNameUpdate }: { userEmail: st
   });
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    async function calculateStreak() {
+      const [mRes, aRes] = await Promise.all([
+        supabase.from('meals').select('date').eq('email', userEmail),
+        supabase.from('activities').select('date').eq('email', userEmail)
+      ]);
+      
+      const allDates = new Set([
+        ...(mRes.data || []).map(m => m.date),
+        ...(aRes.data || []).map(a => a.date)
+      ]);
+      
+      if (allDates.size === 0) {
+        setStreak(0);
+        return;
+      }
+      
+      let count = 0;
+      const checkDate = new Date();
+      const todayStr = checkDate.toISOString().split('T')[0];
+      
+      if (!allDates.has(todayStr)) {
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+
+      while (true) {
+        const dStr = checkDate.toISOString().split('T')[0];
+        if (allDates.has(dStr)) {
+          count++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      setStreak(count);
+    }
+    calculateStreak();
+  }, [userEmail]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -94,6 +134,23 @@ export default function UserProfile({ userEmail, onNameUpdate }: { userEmail: st
         <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <User size={24} /> Personal Profile
         </h2>
+        {streak > 0 && (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.4rem', 
+            background: 'linear-gradient(135deg, #ff9d00 0%, #ff4d00 100%)', 
+            padding: '0.4rem 0.8rem', 
+            borderRadius: '2rem',
+            color: 'white',
+            fontWeight: '800',
+            fontSize: '0.9rem',
+            boxShadow: '0 4px 12px rgba(255, 77, 0, 0.3)'
+          }}>
+            <Flame size={16} fill="white" className="animate-pulse" />
+            {streak} Day Streak
+          </div>
+        )}
         <button 
           className="primary" 
           onClick={saveProfile} 

@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import { supabase } from '@/lib/supabase';
 import NoSSR from './NoSSR';
-import { LayoutDashboard, TrendingUp, Calendar, Zap, PieChart as PieIcon, CloudSync, Sparkles } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Calendar, Zap, PieChart as PieIcon, CloudSync, Sparkles, Flame } from 'lucide-react';
 
 interface Meal {
   calories: number;
@@ -144,7 +144,7 @@ export default function Dashboard({ userEmail }: { userEmail: string }) {
 
   // BMR/TDEE logic
   const calculateTDEE = () => {
-    if (!profile?.weight || !profile?.height || !profile?.age) return 2000;
+    if (!profile) return 2000;
     const w = parseFloat(profile.weight);
     const h = parseFloat(profile.height);
     const a = parseFloat(profile.age);
@@ -153,7 +153,38 @@ export default function Dashboard({ userEmail }: { userEmail: string }) {
     const baseTdee = Math.round(bmr * (mults[profile.activity_level as keyof typeof mults] || 1.2));
     return activeTab === 'daily' ? baseTdee : baseTdee * 7; // Goal for the week
   };
+
+  const calculateStreak = () => {
+    const allDates = new Set([
+      ...meals.map(m => m.date),
+      ...activities.map(a => a.date)
+    ]);
+    
+    if (allDates.size === 0) return 0;
+    
+    let streak = 0;
+    const checkDate = new Date();
+    const todayStr = getFormattedDate(new Date());
+    
+    // If today is empty, we start checking from yesterday to see if streak is alive
+    if (!allDates.has(todayStr)) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    while (true) {
+      const dStr = getFormattedDate(checkDate);
+      if (allDates.has(dStr)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
   const tdee = calculateTDEE();
+  const streak = calculateStreak();
   const net = consumed - burned;
   const balance = tdee - net;
 
@@ -184,7 +215,27 @@ export default function Dashboard({ userEmail }: { userEmail: string }) {
   return (
     <div style={{ display: 'grid', gap: '1.5rem' }}>
       {/* Summary Cards */}
-      <div className="responsive-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+      <div className="responsive-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
+        <div className="glass-card" style={{ 
+          textAlign: 'center', 
+          padding: '1rem', 
+          background: streak > 0 ? 'linear-gradient(135deg, #ff9d00 0%, #ff4d00 100%)' : 'rgba(255,255,255,0.8)',
+          color: streak > 0 ? 'white' : 'inherit',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.2rem',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {streak > 0 && <div className="streak-glow" style={{ position: 'absolute', width: '100%', height: '100%', background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)', top: 0, left: 0 }}></div>}
+          <div style={{ fontSize: '0.7rem', opacity: streak > 0 ? 0.9 : 1, fontWeight: '700', textTransform: 'uppercase' }}>Streak</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Flame size={20} className={streak > 0 ? "animate-pulse" : ""} fill={streak > 0 ? "white" : "none"} color={streak > 0 ? "white" : "#94a3b8"} />
+            <div style={{ fontSize: '1.4rem', fontWeight: '900' }}>{streak}</div>
+          </div>
+        </div>
         <div className="glass-card" style={{ textAlign: 'center', padding: '1rem' }}>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase' }}>In</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: 'var(--primary)' }}>{consumed}</div>
